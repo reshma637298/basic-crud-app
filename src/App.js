@@ -1,10 +1,9 @@
-import Cart from "./Components/Cart";
+import Cartnew from "./Components/Cartnew";
 
 function App() {
   return (
     <div className="App">
-      <h1>My TODO list</h1>
-      <Cart />
+      <Cartnew />
     </div>
   );
 }
