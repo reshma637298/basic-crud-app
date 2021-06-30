@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import DeleteModal from "./DeleteModal";
 import EditModal from "./EditModal.js";
 
@@ -34,6 +34,7 @@ const Cartnew = () => {
   const addItem1 = (id) => {
     const cartLength = cartList.length;
     console.log(cartLength);
+    const cartList2 = [...cartList];
 
     if (cartLength === 0) {
       const newCart = [{ cartItem: items[id], quantity: 1 }];
@@ -42,39 +43,66 @@ const Cartnew = () => {
       console.log(cartList, "length =0");
     } else {
       console.log(cartList, "length !=0");
-      cartList.map((item) => {
-        if (item.cartItem.id === id) {
-          const cartListCopy = item;
-          cartListCopy.quantity += 1;
-          cartListCopy.cartItem.Price *= cartListCopy.quantity;
-          console.log(cartList, "id same");
-        } else {
-          const newCart = [...cartList, { cartItem: items[id], quantity: 1 }];
-          setCartList(newCart);
-          setTotalAmount(totalAmount + items[id].Price);
-          console.log(cartList, "id different");
-        }
-        //  else {
-        //   // const newQuantity = item.quantity + 1;
-        //   // const modifiedItem = [item, newQuantity];
-        //   // const modifiedCartList = [...cartList, newQuantity];
-        //   // setCartList(modifiedCartList);
-        //   // console.log(modifiedCartList);
-
-        //   const cartListCopy = item;
-        //   cartListCopy.quantity += 1;
-        //   cartListCopy.cartItem.Price *= cartListCopy.quantity;
-        //   console.log(cartList);
-        // }
-      });
+      // cartList2.map((item) => {
+      //   if (item.cartItem.id === id) {
+      //     const cartListCopy = item;
+      //     cartListCopy.quantity += 1;
+      //     cartListCopy.cartItem.Price *= cartListCopy.quantity;
+      //     console.log(cartList, "id same");
+      //     setCartList(cartList2);
+      //     return;
+      //   } else {
+      //     const newCart = [...cartList2, { cartItem: items[id], quantity: 1 }];
+      //     setCartList(newCart);
+      //     setTotalAmount(totalAmount + items[id].Price);
+      //     console.log(cartList, "id different");
+      //     return;
+      //   }
+      let requiredIndex = 0;
+      requiredIndex = cartList.findIndex((x) => x.cartItem.id === id);
+      console.log(requiredIndex);
+      if (requiredIndex !== -1) {
+        const cartList2 = [...cartList];
+        cartList2[requiredIndex].quantity += 1;
+        cartList2[requiredIndex].cartItem.Price =
+          items[id].Price * cartList2[requiredIndex].quantity;
+        setCartList(cartList2);
+        setTotalAmount(totalAmount + items[id].Price);
+        console.log(cartList, "id same");
+      } else {
+        const newCart = [...cartList2, { cartItem: items[id], quantity: 1 }];
+        setCartList(newCart);
+        setTotalAmount(totalAmount + items[id].Price);
+        console.log(cartList, "id different");
+      }
     }
+    // });
   };
 
-  const editItem = (item) => {
-    const cartListCopy = item;
+  const editItem = (id) => {
+    let newTotalAmountInCart = 0;
+    const cartListCopy = [...cartList];
+    console.log(id);
+    cartListCopy[id].cartItem.Name = newName;
+    cartListCopy[id].quantity = newQuantity;
     console.log(cartListCopy);
-    item.cartItem.Name = newName;
-    item.quantity = newQuantity;
+    const requiredIndexInItems = items.findIndex(
+      (item) => item.Name === newName
+    );
+    if (requiredIndexInItems !== -1) {
+      const editedItemPrice = items[requiredIndexInItems].Price;
+      cartListCopy[id].cartItem.Price = newQuantity * editedItemPrice;
+      setCartList(cartListCopy);
+    }
+
+    cartListCopy.map((item) => {
+      newTotalAmountInCart = newTotalAmountInCart + item.cartItem.Price;
+      setTotalAmount(newTotalAmountInCart);
+    });
+    // const cartListCopy = item;
+    // console.log(cartListCopy);
+    // item.cartItem.Name = newName;
+    // item.quantity = newQuantity;
   };
 
   const deleteItem = (id) => {
@@ -82,6 +110,19 @@ const Cartnew = () => {
     const delItem = remainingItem.splice(id, 1);
     setCartList(remainingItem);
     setIsOpen(false);
+  };
+
+  const quantityChange = (id, event) => {
+    event.preventDefault();
+    const newQuantity = event.target.value;
+    const cartList2 = [...cartList];
+    cartList2[id].quantity = newQuantity;
+
+    const cartId = cartList2[id].cartItem.id;
+    console.log(cartId);
+    cartList2[id].cartItem.Price = items[cartId].Price * cartList2[id].quantity;
+    setCartList(cartList2);
+    setTotalAmount(totalAmount + items[cartId].Price);
   };
 
   return (
@@ -152,11 +193,22 @@ const Cartnew = () => {
                 <td>{item.cartItem.Name}</td>
                 <td>{item.cartItem.Price}</td>
                 <td>{item.cartItem.Type}</td>
-                <td>{item.quantity}</td>
+                <td>
+                  <input
+                    type="number"
+                    value={item.quantity}
+                    min="2"
+                    max="50"
+                    name="newQuantity"
+                    onChange={(event) => {
+                      quantityChange(key, event);
+                    }}
+                  />
+                </td>
 
                 <td>
                   <EditModal
-                    id={item.id}
+                    id={key}
                     item={item}
                     editItem={editItem}
                     newName={newName}

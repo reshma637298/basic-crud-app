@@ -1,11 +1,9 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Modal from "react-bootstrap/Modal";
 import { Button, InputGroup, FormControl } from "react-bootstrap";
 
 const EditModal = (props) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [NameValue, setNameValue] = useState("");
-  const [quantityValue, setQuantityValue] = useState(0);
 
   const showModal = () => {
     setIsOpen(true);
@@ -61,7 +59,7 @@ const EditModal = (props) => {
           <button
             className="btn btn-success"
             onClick={() => {
-              props.editItem(props.item);
+              props.editItem(props.id);
             }}
           >
             Save
